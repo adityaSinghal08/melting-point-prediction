@@ -9,35 +9,35 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class BasicSmilesFeatures(BaseEstimator, TransformerMixin):
     """
-    sklearn-compatible transformer that converts SMILES strings
-    into basic molecular features.
+    Transformer that takes a full DataFrame, extracts basic molecular
+    features from a SMILES column, and returns a NEW DataFrame with
+    those features appended.
     """
 
     def __init__(self, smiles_col="SMILES"):
         self.smiles_col = smiles_col
 
-    def fit(self, X, y=None):
-        """
-        No fitting required: this transformer is rule-based.
-        """
+    def fit(self, df, y=None):
+        # No fitting required (rule-based transformer)
         return self
 
-    def transform(self, X):
+    def transform(self, df):
         """
-        Converts SMILES strings into numeric molecular features.
-
         Parameters
         ----------
-        X : pd.DataFrame
-            DataFrame containing a SMILES column
+        df : pd.DataFrame
+            Original dataframe containing a SMILES column
 
         Returns
         -------
         pd.DataFrame
-            DataFrame of basic molecular features
+            New dataframe with basic molecular features added
         """
 
-        def featurize(smiles):
+        # Work on a copy to avoid modifying the original dataframe
+        df_out = df.copy()
+
+        def generate_basic_features(smiles):
             mol = Chem.MolFromSmiles(smiles)
             if mol is None:
                 return {
@@ -67,5 +67,19 @@ class BasicSmilesFeatures(BaseEstimator, TransformerMixin):
                 "num_S": sum(a.GetSymbol() == "S" for a in mol.GetAtoms()),
             }
 
-        features = X[self.smiles_col].apply(featurize)
-        return features.apply(pd.Series)
+        # Generate features from SMILES
+        features = df_out[self.smiles_col].apply(generate_basic_features)
+        features_df = features.apply(pd.Series)
+
+        # Append features to original dataframe
+        df_out = pd.concat(
+            [df_out.reset_index(drop=True), features_df.reset_index(drop=True)],
+            axis=1
+        )
+
+        return df_out
+
+# Example usage:
+# df = pd.DataFrame({"SMILES": ["CCO", "c1ccccc1", "CC(=O)O"]})
+# transformer = BasicSmilesFeatures(smiles_col="SMILES")
+# df_transformed = transformer.fit_transform(df)
