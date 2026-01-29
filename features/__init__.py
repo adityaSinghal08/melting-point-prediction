@@ -1,1 +1,1 @@
-from .smiles_basic_transformer import BasicSmilesFeatures
+from .basic_smiles_feature_generator import BasicSmilesFeaturesGenerator
