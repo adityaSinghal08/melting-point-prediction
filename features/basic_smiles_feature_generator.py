@@ -50,4 +50,4 @@ class BasicSmilesFeatureGenerator:
             }
 
         features = df[self.smiles_col].apply(featurize)
-        return features.apply(pd.Series)
+        return pd.DataFrame(features.tolist(), index=df.index)

@@ -1,3 +1,3 @@
-from .basic_smiles_feature_generator import BasicSmilesFeaturesGenerator
+from .basic_smiles_feature_generator import BasicSmilesFeatureGenerator
 from .intermediate_smiles_feature_generator import IntermediateSmilesFeatureGenerator
 from .advanced_smiles_feature_generator import AdvancedSmilesFeatureGenerator
